@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latihan Penjumlahan Bersusun</title>
+    
+    <!-- Link ke Manifest PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff5722">
+
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+            background-color: #eef9ff;
+            text-align: center;
+            padding: 15px;
+        }
+        h1 {
+            color: #ff5722;
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+        p {
+            font-size: 16px;
+            color: #555;
+            margin-top: 0;
+        }
+        
+        .mode-container { margin: 10px 0; }
+        .mode-select {
+            font-family: inherit;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 8px 15px;
+            border: 3px solid #0288d1;
+            border-radius: 20px;
+            background-color: #ffffff;
+            color: #0288d1;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .timer-container {
+            background-color: #ffffff;
+            border: 3px solid #4caf50;
+            border-radius: 20px;
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px auto;
+            box-shadow: 2px 2px 0px #a5d6a7;
+        }
+        .timer-display {
+            font-size: 26px;
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 5px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 850px;
+            margin: 20px auto;
+        }
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+        }
+        .card {
+            background: #ffffff;
+            border: 3px solid #ffca28;
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 3px 3px 0px #ffe082;
+            position: relative;
+        }
+        .card.wrong {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+        .question-title {
+            font-size: 16px;
+            color: #0288d1;
+            margin-bottom: 5px;
+        }
+        .number-box {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: right;
+            width: 90px;
+            margin: 0 auto;
+            color: #333;
+            letter-spacing: 2px;
+        }
+        .line {
+            border-bottom: 3px solid #333;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        .line::after {
+            content: "+";
+            position: absolute;
+            left: -18px;
+            bottom: -12px;
+            font-size: 24px;
+        }
+        .input-group {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 5px;
+        }
+        .digit-input {
+            width: 26px;
+            height: 35px;
+            font-family: inherit;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            border: 2px solid #4caf50;
+            border-radius: 6px;
+            outline: none;
+        }
+        .digit-input:focus {
+            border-color: #ff4081;
+            background-color: #fffde7;
+        }
+        .correct-answer-text {
+            color: #d32f2f;
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .btn {
+            font-family: inherit;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 8px 18px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            color: white;
+        }
+        .btn-install {
+            background-color: #9c27b0;
+            box-shadow: 0 4px #4a148c;
+            display: none; /* Otomatis muncul di Android jika didukung */
+        }
+        .btn-start { background-color: #4caf50; box-shadow: 0 4px #1b5e20; }
+        .btn-stop { background-color: #f44336; box-shadow: 0 4px #b71c1c; }
+        .btn-check { background-color: #ff4081; box-shadow: 0 4px #c2185b; }
+        .btn-reset { background-color: #ff9800; box-shadow: 0 4px #e65100; }
+        .btn-new { background-color: #2196f3; box-shadow: 0 4px #0d47a1; }
+
+        #result {
+            font-size: 22px;
+            font-weight: bold;
+            color: #303f9f;
+            margin-top: 20px;
+        }
+        #dino-container {
+            display: none;
+            margin-top: 20px;
+        }
+        .dino {
+            font-size: 80px;
+            display: inline-block;
+            animation: jump 0.5s infinite alternate ease-in-out;
+        }
+        @keyframes jump {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-40px); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎈 Latihan Penjumlahan Bersusun 🎈</h1>
+    <p>Isi jawaban dari digit paling belakang (satuan) dahulu!</p>
+
+    <!-- Tombol Install Aplikasi (Muncul di Browser Android) -->
+    <div style="margin-bottom: 10px;">
+        <button id="btn-install" class="btn btn-install">📲 Install Aplikasi</button>
+    </div>
+
+    <div class="mode-container">
+        <label for="mode-select" style="font-size: 18px; font-weight: bold; color: #333;">Pilih Jenis Soal: </label>
+        <select id="mode-select" class="mode-select" onchange="generateQuestions()">
+            <option value="no-carry">Tanpa Menyimpan</option>
+            <option value="carry">Dengan Menyimpan</option>
+        </select>
+    </div>
+
+    <div class="timer-container">
+        <div class="timer-display" id="timer">⏱️ Waktu: 00:00</div>
+        <button class="btn btn-start" onclick="startTimer()">Mulai ▶</button>
+        <button class="btn btn-stop" onclick="stopTimer()">Berhenti ⏹</button>
+    </div>
+
+    <div class="grid-container" id="quiz-container"></div>
+
+    <div class="button-group">
+        <button class="btn btn-check" onclick="checkAnswers()">Selesai & Cek Nilai</button>
+        <button class="btn btn-reset" onclick="resetAnswers()">Reset Jawaban</button>
+        <button class="btn btn-new" onclick="generateQuestions()">Soal Baru 🔄</button>
+    </div>
+
+    <div id="result"></div>
+
+    <div id="dino-container">
+        <div class="dino">🦖</div>
+        <h2 style="color: #4caf50; font-size: 28px;">HEBAT! Nilai Kamu 100! 🎉</h2>
+    </div>
+
+    <script>
+        // PWA Installation Logic
+        let deferredPrompt;
+        const installBtn = document.getElementById('btn-install');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'inline-block';
+        });
+
+        installBtn.addEventListener('click', () => {
+            installBtn.style.display = 'none';
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    deferredPrompt = null;
+                });
+            }
+        });
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js');
+        }
+
+        // Logic Soal & Timer
+        const totalQuestions = 20;
+        let questions = [];
+        let timerInterval = null;
+        let secondsElapsed = 0;
+
+        function startTimer() {
+            if (timerInterval) return;
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+                const secs = String(secondsElapsed % 60).padStart(2, '0');
+                document.getElementById('timer').innerText = `⏱️ Waktu: ${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        function resetTimer() {
+            stopTimer();
+            secondsElapsed = 0;
+            document.getElementById('timer').innerText = '⏱️ Waktu: 00:00';
+        }
+
+        function generateNoCarryNumber() {
+            let num1Str = "";
+            let num2Str = "";
+            for (let i = 0; i < 3; i++) {
+                let min = (i === 0) ? 1 : 0;
+                let d1 = Math.floor(Math.random() * (9 - min)) + min;
+                let d2 = Math.floor(Math.random() * (10 - d1));
+                num1Str += d1;
+                num2Str += d2;
+            }
+            return { num1: parseInt(num1Str, 10), num2: parseInt(num2Str, 10) };
+        }
+
+        function generateCarryNumber() {
+            let num1 = Math.floor(Math.random() * 450) + 10;
+            let num2 = Math.floor(Math.random() * 450) + 10;
+            return { num1, num2 };
+        }
+
+        function generateQuestions() {
+            const container = document.getElementById('quiz-container');
+            const selectedMode = document.getElementById('mode-select').value;
+            container.innerHTML = "";
+            questions = [];
+            document.getElementById('result').innerText = "";
+            document.getElementById('dino-container').style.display = 'none';
+            resetTimer();
+
+            for (let i = 0; i < totalQuestions; i++) {
+                let numData = (selectedMode === "no-carry") ? generateNoCarryNumber() : generateCarryNumber();
+                let num1 = numData.num1;
+                let num2 = numData.num2;
+                let ans = num1 + num2;
+
+                questions.push({ num1, num2, ans });
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.id = `card-${i}`;
+                card.innerHTML = `
+                    <div class="question-title">Soal No. ${i + 1}</div>
+                    <div class="number-box">
+                        <div>${num1}</div>
+                        <div class="line">${num2}</div>
+                    </div>
+                    <div class="input-group">
+                        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="digit-input" id="ans-${i}-1" onkeyup="moveNext(this, null)">
+                        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="digit-input" id="ans-${i}-2" onkeyup="moveNext(this, 'ans-${i}-1')">
+                        <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="digit-input" id="ans-${i}-3" onkeyup="moveNext(this, 'ans-${i}-2')">
+                    </div>
+                    <div class="correct-answer-text" id="correct-text-${i}">Kunci: ${ans}</div>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        function resetAnswers() {
+            for (let i = 0; i < totalQuestions; i++) {
+                document.getElementById(`ans-${i}-1`).value = "";
+                document.getElementById(`ans-${i}-2`).value = "";
+                document.getElementById(`ans-${i}-3`).value = "";
+
+                const card = document.getElementById(`card-${i}`);
+                const correctText = document.getElementById(`correct-text-${i}`);
+                card.classList.remove('wrong');
+                correctText.style.display = 'none';
+            }
+            document.getElementById('result').innerText = "";
+            document.getElementById('dino-container').style.display = 'none';
+            resetTimer();
+        }
+
+        function moveNext(current, prevId) {
+            if (!timerInterval) startTimer();
+            if (current.value.length === 1 && prevId) {
+                document.getElementById(prevId).focus();
+            }
+        }
+
+        function checkAnswers() {
+            stopTimer();
+            let correctCount = 0;
+            let wrongQuestions = [];
+
+            for (let i = 0; i < totalQuestions; i++) {
+                const d1 = document.getElementById(`ans-${i}-1`).value || "0";
+                const d2 = document.getElementById(`ans-${i}-2`).value || "0";
+                const d3 = document.getElementById(`ans-${i}-3`).value || "0";
+                
+                const userAns = parseInt(d1 + d2 + d3, 10);
+                const card = document.getElementById(`card-${i}`);
+                const correctText = document.getElementById(`correct-text-${i}`);
+
+                if (userAns === questions[i].ans) {
+                    correctCount++;
+                    card.classList.remove('wrong');
+                    correctText.style.display = 'none';
+                } else {
+                    card.classList.add('wrong');
+                    correctText.style.display = 'block';
+                    wrongQuestions.push(i + 1);
+                }
+            }
+
+            const score = (correctCount / totalQuestions) * 100;
+            const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+            const secs = String(secondsElapsed % 60).padStart(2, '0');
+
+            document.getElementById('result').innerText = `Kamu menjawab benar ${correctCount} dari ${totalQuestions} soal.\nNilai Kamu: ${score}\nWaktu pengerjaan: ${mins}:${secs}`;
+
+            if (score === 100) {
+                document.getElementById('dino-container').style.display = 'block';
+                alert(`🎉 Selamat! Semua jawabanmu benar (Nilai 100)!\nWaktu pengerjaan: ${mins}:${secs}`);
+            } else {
+                document.getElementById('dino-container').style.display = 'none';
+                alert(`❌ Ada ${totalQuestions - correctCount} jawaban yang salah di soal nomor: ${wrongQuestions.join(', ')}.`);
+            }
+        }
+
+        generateQuestions();
+    </script>
+</body>
+</html>
